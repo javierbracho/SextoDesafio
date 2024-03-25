@@ -37,22 +37,29 @@ routerS.post("/login", async (req, res)=>{
 })
 */
 
-routerS.post("/login", passport.authenticate("login", {failureRedirect: "/faillogin"})),
-async(req, res) => {
-   if(!req.user) {
-      return res.status(400).send({status:"error "})
+routerS.post("/login", passport.authenticate("login", {
+   failureRedirect: "/faillogin"
+ }), async (req, res) => {
+   try {
+     if (!req.user) {
+       return res.status(400).send({ status: "error" });
+     }
+     
+     req.session.user = {
+       first_name: req.user.first_name,
+       last_name: req.user.last_name,
+       age: req.user.age,
+       email: req.user.email,
+     };
+ 
+     req.session.login = true;
+     res.redirect("/products");
+   } catch (error) {
+     console.error("Error en la ruta /login:", error);
+     res.status(500).send({ status: "error", message: "Error en el servidor" });
    }
-   req.session.user = {
-      first_name: req.user.first_name,
-      last_name: req.user.last_name,
-      age: req.user.age,
-      email: req.user.email,
-  };
-
-  req.session.login = true;
-  res.redirect("/profile")
-}
-
+ });
+ 
 routerS.get("/faillogin", async (req, res)  => {
    res.send({error:"error al loguear"})
 })
