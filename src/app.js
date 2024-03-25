@@ -8,6 +8,8 @@ import viewsRouter from "./routes/views.router.js"
 import productRouter from "./routes/products.router.js"
 import dataBase from "../src/database.js"
 import  ExpressHandlebars from "express-handlebars";
+import initializePassport from "./config/passport.config.js";
+import passport from "passport";
 
 const app = Express()
 const PUERTO = 8080;
@@ -29,6 +31,10 @@ app.use(session ({
         ttl: 100
     })
 }))
+
+initializePassport()
+app.use (passport.initialize())
+app.use(passport.session())
 
 app.use("/", userRouter)
 app.use ("/", sessionRouter)

@@ -1,8 +1,12 @@
 import Express from "express";
 import userModel from "../model/user.model.js"
 import admin from "./user/admin.js"
+import hashbcrypt from "../utils/hashbcrypt.js"
+import passport from "passport";
 
 const routerS = Express.Router()
+
+/*
 
 routerS.post("/login", async (req, res)=>{
     const {email, password} = req.body
@@ -31,6 +35,28 @@ routerS.post("/login", async (req, res)=>{
 
     }
 })
+*/
+
+routerS.post("/login", passport.authenticate("login", {failureRedirect: "/faillogin"})),
+async(req, res) => {
+   if(!req.user) {
+      return res.status(400).send({status:"error "})
+   }
+   req.session.user = {
+      first_name: req.user.first_name,
+      last_name: req.user.last_name,
+      age: req.user.age,
+      email: req.user.email,
+  };
+
+  req.session.login = true;
+  res.redirect("/profile")
+}
+
+routerS.get("/faillogin", async (req, res)  => {
+   res.send({error:"error al loguear"})
+})
+
 
 routerS.get ("/logout", (req, res) => {
      if (req.session.login) {
